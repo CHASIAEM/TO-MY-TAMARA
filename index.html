@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For TAMARA ❤️</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@300&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #1a0505; color: white; font-family: 'Inter', sans-serif; overflow: hidden; margin: 0; }
+        .handwritten { font-family: 'Dancing Script', cursive; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+        // Framer Motion is usually exported as Motion on the window object in this CDN
+        const { motion, AnimatePresence } = window.Motion;
+
+        function App() {
+            const [view, setView] = useState('landing');
+            const [activePhoto, setActivePhoto] = useState(null);
+            const [clickedCount, setClickedCount] = useState(0);
+            const audioRef = useRef(null);
+
+            const photos = [
+                '1.jpg','2.jpg','3.jpg','4.jpg','5.jpg',
+                '6.jpg','7.jpg','8.jpg','9.jpg','10.jpg',
+                '11.jpg','12.jpg','13.jpg','14.jpg','tamara.jpg' // Cleaned extension
+            ];
+
+            const startExperience = () => {
+                if (audioRef.current) {
+                    audioRef.current.play().catch(e => console.error("Audio play failed:", e));
+                }
+                setView('journey');
+            };
+
+            const handlePetalClick = (index) => {
+                setActivePhoto(photos[index]);
+                const nextCount = clickedCount + 1;
+                setClickedCount(nextCount);
+                // Trigger transition to "Ask" view after 10 clicks
+                if (nextCount >= 10) {
+                    setTimeout(() => setView('ask'), 1500);
+                }
+            };
+
+            return (
+                <div className="h-screen w-screen relative overflow-hidden flex items-center justify-center">
+                    <audio ref={audioRef} loop src="Alwaysbemybaby.mp3" preload="auto" />
+
+                    <AnimatePresence mode="wait">
+                        {view === 'landing' && (
+                            <motion.div 
+                                key="landing" 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }} 
+                                onClick={startExperience} 
+                                className="text-center cursor-pointer p-10 z-50"
+                            >
+                                <motion.h1 
+                                    animate={{ opacity: [0.4, 1, 0.4] }} 
+                                    transition={{ duration: 3, repeat: Infinity }} 
+                                    className="text-2xl tracking-[0.3em] uppercase font-light"
+                                >
+                                    For Tamara
+                                </motion.h1>
+                                <p className="mt-4 text-[10px] opacity-40 uppercase tracking-widest italic">Touch to enter</p>
+                            </motion.div>
+                        )}
+
+                        {view === 'journey' && (
+                            <motion.div key="journey" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0">
+                                <AnimatePresence>
+                                    {activePhoto && (
+                                        <motion.div 
+                                            key={activePhoto} 
+                                            initial={{ opacity: 0, scale: 0.8, rotate: -5 }} 
+                                            animate={{ opacity: 1, scale: 1, rotate: 0 }} 
+                                            exit={{ opacity: 0, scale: 1.1 }} 
+                                            className="absolute inset-0 flex items-center justify-center z-10"
+                                        >
+                                            <div 
+                                                className="w-[75%] max-w-[320px] aspect-[4/5] bg-cover bg-center rounded-sm border-[10px] border-white shadow-2xl"
+                                                style={{ backgroundImage: `url(${activePhoto})` }} 
+                                            />
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                                
+                                {[...Array(15)].map((_, i) => (
+                                    <motion.button 
+                                        key={`heart-${i}`}
+                                        initial={{ 
+                                            x: Math.random() * 100 + 'vw', 
+                                            y: Math.random() * 100 + 'vh' 
+                                        }}
+                                        animate={{ 
+                                            y: [Math.random() * 100 + 'vh', Math.random() * 100 + 'vh'], 
+                                            x: [Math.random() * 100 + 'vw', Math.random() * 100 + 'vw'] 
+                                        }}
+                                        transition={{ duration: 20 + Math.random() * 10, repeat: Infinity, ease: "linear" }}
+                                        onClick={() => handlePetalClick(i % photos.length)}
+                                        className="absolute text-red-500/60 text-3xl z-20"
+                                    >
+                                        ❤
+                                    </motion.button>
+                                ))}
+                            </motion.div>
+                        )}
+
+                        {view === 'ask' && (
+                            <motion.div 
+                                key="ask" 
+                                initial={{ opacity: 0, y: 20 }} 
+                                animate={{ opacity: 1, y: 0 }} 
+                                exit={{ opacity: 0 }}
+                                className="text-center p-10 z-30"
+                            >
+                                <h2 className="handwritten text-6xl mb-6 text-pink-200">Belle,</h2>
+                                <p className="text-xl italic opacity-80 mb-10 tracking-wide">Will you be my Valentine?</p>
+                                <button 
+                                    onClick={() => setView('finale')} 
+                                    className="px-12 py-3 border-2 border-pink-200 text-pink-200 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-pink-200 hover:text-black transition-colors"
+                                >
+                                    Yes
+                                </button>
+                            </motion.div>
+                        )}
+
+                        {view === 'finale' && (
+                            <motion.div 
+                                key="finale" 
+                                initial={{ opacity: 0 }} 
+                                animate={{ opacity: 1 }} 
+                                className="absolute inset-0 flex flex-col items-center justify-end text-center pb-24 overflow-hidden"
+                            >
+                                <div className="absolute inset-0 bg-cover bg-center z-0" style={{ backgroundImage: `url('11.jpg')` }} />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10" />
+
+                                <div className="relative z-20 px-6">
+                                    <motion.h1 
+                                        initial={{ y: 50, opacity: 0 }} 
+                                        animate={{ y: 0, opacity: 1 }} 
+                                        className="text-7xl md:text-9xl font-black italic text-white drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)]"
+                                    >
+                                        YES! ❤️
+                                    </motion.h1>
+                                    <motion.p 
+                                        initial={{ opacity: 0 }} 
+                                        animate={{ opacity: 1 }} 
+                                        transition={{ delay: 0.5 }} 
+                                        className="text-lg md:text-xl mt-4 font-light tracking-[0.2em] uppercase text-white"
+                                    >
+                                        Always Be My Baby... Indefinitely.
+                                    </motion.p>
+                                </div>
+
+                                <div className="absolute inset-0 pointer-events-none z-30">
+                                    {[...Array(30)].map((_, i) => (
+                                        <motion.div 
+                                            key={`rain-${i}`} 
+                                            animate={{ y: ['-10vh', '110vh'], x: (Math.random() - 0.5) * 50 + 'px' }} 
+                                            transition={{ repeat: Infinity, duration: 2 + Math.random() * 3, delay: Math.random() * 2 }}
+                                            className="absolute text-3xl" 
+                                            style={{ left: Math.random() * 100 + 'vw' }}
+                                        >
+                                            ❤️
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
